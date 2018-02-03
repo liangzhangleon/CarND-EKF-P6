@@ -51,17 +51,18 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     hx<< 0,0,0;
     hx(0) = std::sqrt(px * px + py * py);
     hx(1) = std::atan2(py, px);
-    float const PI=3.14159265;
-    if (hx(1) > PI)
-        hx(1) -= 2 * PI;
-    else if (hx(1) < -PI)
-        hx(1) += 2 * PI;
-    if(fabs(hx(0)) < 0.0001)
-        hx(2) = (px * vx + py * vy)/0.0001;
+
+    if(fabs(hx(0)) < 0.01)
+        hx(2) = (px * vx + py * vy)/0.01;
     else
         hx(2) = (px * vx + py * vy)/hx(0);
 
     VectorXd y_ = z - hx;
+    float const PI=3.14159265;
+    if (y_(1) > PI)
+        y_(1) -= 2 * PI;
+    else if (y_(1) < -PI)
+        y_(1) += 2 * PI;
     // In the following, H_ is Hj
     MatrixXd S_ = H_ * P_ * H_.transpose() + R_;
     MatrixXd K_ = P_ * H_.transpose() * S_.inverse();
